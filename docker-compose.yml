@@ -1,0 +1,23 @@
+version: '2.1'
+services:
+  rabbitmq:
+    extends:
+      file: local-compose.yml
+      service: rabbitmq
+    labels:
+      - triton.cns.services=rabbitmq
+    links:
+      - consul:consul
+    mem_limit: 4g
+    network_mode: bridge
+
+  consul:
+    extends:
+      file: local-compose.yml
+      service: consul
+    dns:
+      - 127.0.0.1
+    labels:
+      - triton.cns.services=consul
+    mem_limit: 512m
+    network_mode: bridge

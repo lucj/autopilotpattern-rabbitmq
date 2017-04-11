@@ -1,0 +1,15 @@
+version: '2.1'
+services:
+  rabbitmq:
+    image: autopilotpattern/rabbitmq:latest
+    build: .
+    restart: always
+    ports:
+      - "5672:5672"
+
+  consul:
+    image: consul:0.7.5
+    command: agent -server -client=0.0.0.0 -bootstrap -ui
+    ports:
+      - "8500:8500"
+    restart: always
