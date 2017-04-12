@@ -1,4 +1,4 @@
-FROM rabbitmq:3.6.9-alpine
+FROM rabbitmq:3.6.9-management-alpine
 
 RUN apk update && apk add curl unzip
 
@@ -25,6 +25,9 @@ ENV CONTAINERPILOT_PATH=/etc/containerpilot.json
 COPY etc/containerpilot.json ${CONTAINERPILOT_PATH}
 ENV CONTAINERPILOT=file://${CONTAINERPILOT_PATH}
 
+# COPY RabbitMQ's wrapper
+COPY bin/wrapper.sh /usr/local/bin
+
 # Override the parent entrypoint
 ENTRYPOINT ["containerpilot"]
-CMD ["rabbitmq-server"]
+CMD ["wrapper.sh", "rabbitmq-server"]
