@@ -3,8 +3,8 @@ FROM rabbitmq:3.6.9-management-alpine
 RUN apk update && apk add curl unzip
 
 # Install consul
-RUN export CONSUL_VERSION=0.7.5 \
-    && CONSUL_CHECKSUM=40ce7175535551882ecdff21fdd276cef6eaab96be8a8260e0599fadb6f1f5b8 \
+RUN export CONSUL_VERSION=0.8.0 \
+    && CONSUL_CHECKSUM=f4051c2cab9220be3c0ca22054ee4233f1396c7138ffd97a38ffbcea44377f47 \
     && curl --retry 7 --fail -vo /tmp/consul.zip "https://releases.hashicorp.com/consul/${CONSUL_VERSION}/consul_${CONSUL_VERSION}_linux_amd64.zip" \
     && echo "${CONSUL_CHECKSUM}  /tmp/consul.zip" | sha256sum -c \
     && unzip /tmp/consul -d /usr/local/bin \
