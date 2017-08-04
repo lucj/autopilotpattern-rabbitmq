@@ -2,18 +2,18 @@ FROM rabbitmq:3.6.9-management-alpine
 
 RUN apk update && apk add curl unzip
 
-# Install consul
-RUN export CONSUL_VERSION=0.8.0 \
-    && CONSUL_CHECKSUM=f4051c2cab9220be3c0ca22054ee4233f1396c7138ffd97a38ffbcea44377f47 \
+# Add consul agent
+RUN export CONSUL_VERSION=0.9.0 \
+    && export CONSUL_CHECKSUM=33e54c7d9a93a8ce90fc87f74c7f787068b7a62092b7c55a945eea9939e8577f \
     && curl --retry 7 --fail -vo /tmp/consul.zip "https://releases.hashicorp.com/consul/${CONSUL_VERSION}/consul_${CONSUL_VERSION}_linux_amd64.zip" \
     && echo "${CONSUL_CHECKSUM}  /tmp/consul.zip" | sha256sum -c \
     && unzip /tmp/consul -d /usr/local/bin \
     && rm /tmp/consul.zip \
-    && mkdir -p /opt/consul/config
+    && mkdir /config
 
 # Add ContainerPilot and set its configuration file path
-RUN export CONTAINERPILOT_VER=2.7.2 \
-    && export CONTAINERPILOT_CHECKSUM=e886899467ced6d7c76027d58c7f7554c2fb2bcc \
+ENV CONTAINERPILOT_VER 3.3.0
+RUN export CONTAINERPILOT_CHECKSUM=62621712ef6ba755e24805f616096de13e2fd087 \
     && curl -Lso /tmp/containerpilot.tar.gz \
         "https://github.com/joyent/containerpilot/releases/download/${CONTAINERPILOT_VER}/containerpilot-${CONTAINERPILOT_VER}.tar.gz" \
     && echo "${CONTAINERPILOT_CHECKSUM}  /tmp/containerpilot.tar.gz" | sha1sum -c \
@@ -21,13 +21,11 @@ RUN export CONTAINERPILOT_VER=2.7.2 \
     && rm /tmp/containerpilot.tar.gz
 
 # COPY ContainerPilot configuration
-ENV CONTAINERPILOT_PATH=/etc/containerpilot.json
-COPY etc/containerpilot.json ${CONTAINERPILOT_PATH}
-ENV CONTAINERPILOT=file://${CONTAINERPILOT_PATH}
+COPY etc/containerpilot.json5 /etc/containerpilot.json5
+ENV CONTAINERPILOT /etc/containerpilot.json5
 
 # COPY RabbitMQ's wrapper
 COPY bin/wrapper.sh /usr/local/bin
 
 # Override the parent entrypoint
 ENTRYPOINT ["containerpilot"]
-CMD ["wrapper.sh", "rabbitmq-server"]
