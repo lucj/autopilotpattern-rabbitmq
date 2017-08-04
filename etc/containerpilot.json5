@@ -1,0 +1,31 @@
+{
+  consul: "localhost:8500",
+  logging: {
+    level: "{{ if .LOG_LEVEL }}{{ .LOG_LEVEL }}{{ else }}INFO{{ end }}",
+    format: "text"
+  },
+  jobs: [
+    {
+      name: "rabbitmq",
+      exec: "wrapper.sh rabbitmq-server",
+      port: 5672,
+      health: {
+        exec: "rabbitmqctl node_health_check",
+        interval: 10,
+        ttl: 25
+      }
+    },
+    {
+      name: 'consul-agent',
+      exec: ['/usr/local/bin/consul', 'agent',
+                  '-data-dir=/data',
+                  '-config-dir=/config',
+                  '-log-level=err',
+                  '-rejoin',
+                  '-retry-join', '{{ .CONSUL | default "consul" }}',
+                  '-retry-max', '10',
+                  '-retry-interval', '10s'],
+      restarts: 'unlimited'
+    }
+  ]
+}
